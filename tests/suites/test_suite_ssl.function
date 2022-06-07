@@ -1624,6 +1624,7 @@ cleanup:
     return( ret );
 }
 
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
 /*
  * Populate a session structure for serialization tests.
  * Choose dummy values, mostly non-0 to distinguish from the init default.
@@ -1708,6 +1709,7 @@ static int ssl_populate_session_tls12( mbedtls_ssl_session *session,
 
     return( 0 );
 }
+#endif
 
 /*
  * Perform data exchanging between \p ssl_1 and \p ssl_2 and check if the
@@ -4557,6 +4559,7 @@ exit:
 /* BEGIN_CASE */
 void ssl_serialize_session_save_load( int ticket_len, char *crt_file )
 {
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
     mbedtls_ssl_session original, restored;
     unsigned char *buf = NULL;
     size_t len;
@@ -4649,12 +4652,17 @@ exit:
     mbedtls_ssl_session_free( &original );
     mbedtls_ssl_session_free( &restored );
     mbedtls_free( buf );
+#else
+    (void) ticket_len;
+    (void) crt_file;
+#endif /* MBEDTLS_SSL_CONTEXT_SERIALIZATION */
 }
 /* END_CASE */
 
 /* BEGIN_CASE */
 void ssl_serialize_session_load_save( int ticket_len, char *crt_file )
 {
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
     mbedtls_ssl_session session;
     unsigned char *buf1 = NULL, *buf2 = NULL;
     size_t len0, len1, len2;
@@ -4699,12 +4707,17 @@ exit:
     mbedtls_ssl_session_free( &session );
     mbedtls_free( buf1 );
     mbedtls_free( buf2 );
+#else
+    (void) ticket_len;
+    (void) crt_file;
+#endif /* MBEDTLS_SSL_CONTEXT_SERIALIZATION */
 }
 /* END_CASE */
 
 /* BEGIN_CASE */
 void ssl_serialize_session_save_buf_size( int ticket_len, char *crt_file )
 {
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
     mbedtls_ssl_session session;
     unsigned char *buf = NULL;
     size_t good_len, bad_len, test_len;
@@ -4735,12 +4748,17 @@ void ssl_serialize_session_save_buf_size( int ticket_len, char *crt_file )
 exit:
     mbedtls_ssl_session_free( &session );
     mbedtls_free( buf );
+#else
+    (void) ticket_len;
+    (void) crt_file;
+#endif /* MBEDTLS_SSL_CONTEXT_SERIALIZATION */
 }
 /* END_CASE */
 
 /* BEGIN_CASE */
 void ssl_serialize_session_load_buf_size( int ticket_len, char *crt_file )
 {
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
     mbedtls_ssl_session session;
     unsigned char *good_buf = NULL, *bad_buf = NULL;
     size_t good_len, bad_len;
@@ -4777,6 +4795,10 @@ exit:
     mbedtls_ssl_session_free( &session );
     mbedtls_free( good_buf );
     mbedtls_free( bad_buf );
+#else
+    (void) ticket_len;
+    (void) crt_file;
+#endif /* MBEDTLS_SSL_CONTEXT_SERIALIZATION */
 }
 /* END_CASE */
 
@@ -4786,6 +4808,7 @@ void ssl_session_serialize_version_check( int corrupt_major,
                                           int corrupt_patch,
                                           int corrupt_config )
 {
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
     unsigned char serialized_session[ 2048 ];
     size_t serialized_session_len;
     unsigned cur_byte;
@@ -4840,7 +4863,12 @@ void ssl_session_serialize_version_check( int corrupt_major,
             *byte ^= corrupted_bit;
         }
     }
-
+#else
+    (void) corrupt_major;
+    (void) corrupt_minor;
+    (void) corrupt_patch;
+    (void) corrupt_config;
+#endif /* MBEDTLS_SSL_CONTEXT_SERIALIZATION */
 }
 /* END_CASE */
 

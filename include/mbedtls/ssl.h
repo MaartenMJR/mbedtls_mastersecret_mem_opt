@@ -1143,7 +1143,9 @@ struct mbedtls_ssl_session
     int MBEDTLS_PRIVATE(compression);            /*!< chosen compression */
     size_t MBEDTLS_PRIVATE(id_len);              /*!< session id length  */
     unsigned char MBEDTLS_PRIVATE(id)[32];       /*!< session identifier */
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
     unsigned char MBEDTLS_PRIVATE(master)[48];   /*!< the master secret  */
+#endif /* MBEDTLS_SSL_CONTEXT_SERIALIZATION */
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
 #if defined(MBEDTLS_SSL_KEEP_PEER_CERTIFICATE)

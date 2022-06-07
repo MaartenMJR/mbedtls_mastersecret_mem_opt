@@ -5455,7 +5455,7 @@ int mbedtls_ssl_derive_keys( mbedtls_ssl_context *ssl )
 
     /* Compute master secret if needed */
     ret = ssl_compute_master( ssl->handshake,
-                              ssl->session_negotiate->master,
+                              ssl->handshake->master,
                               ssl );
     if( ret != 0 )
     {
@@ -5477,7 +5477,7 @@ int mbedtls_ssl_derive_keys( mbedtls_ssl_context *ssl )
     /* Populate transform structure */
     ret = ssl_tls12_populate_transform( ssl->transform_negotiate,
                                         ssl->session_negotiate->ciphersuite,
-                                        ssl->session_negotiate->master,
+                                        ssl->handshake->master,
 #if defined(MBEDTLS_SSL_SOME_SUITES_USE_CBC_ETM)
                                         ssl->session_negotiate->encrypt_then_mac,
 #endif /* MBEDTLS_SSL_SOME_SUITES_USE_CBC_ETM */
@@ -6637,7 +6637,7 @@ static void ssl_calc_finished_tls_sha256(
     mbedtls_sha256_free( &sha256 );
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
 
-    ssl->handshake->tls_prf( session->master, 48, sender,
+    ssl->handshake->tls_prf( ssl->handshake->master, 48, sender,
                              padbuf, 32, buf, len );
 
     MBEDTLS_SSL_DEBUG_BUF( 3, "calc finished result", buf, len );
@@ -6714,7 +6714,7 @@ static void ssl_calc_finished_tls_sha384(
     mbedtls_sha512_free( &sha512 );
 #endif
 
-    ssl->handshake->tls_prf( session->master, 48, sender,
+    ssl->handshake->tls_prf( ssl->handshake->master, 48, sender,
                              padbuf, 48, buf, len );
 
     MBEDTLS_SSL_DEBUG_BUF( 3, "calc finished result", buf, len );
@@ -6794,6 +6794,10 @@ void mbedtls_ssl_handshake_wrapup( mbedtls_ssl_context *ssl )
                                     ssl->session ) != 0 )
             MBEDTLS_SSL_DEBUG_MSG( 1, ( "cache did not store session" ) );
     }
+
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
+    memcpy(ssl->session->master, ssl->handshake->master, sizeof(ssl->handshake->master));
+#endif
 
 #if defined(MBEDTLS_SSL_PROTO_DTLS)
     if( ssl->conf->transport == MBEDTLS_SSL_TRANSPORT_DATAGRAM &&
@@ -7702,6 +7706,8 @@ unsigned int mbedtls_ssl_tls12_get_preferred_hash_for_sig_alg(
 
 #endif /* MBEDTLS_KEY_EXCHANGE_WITH_CERT_ENABLED */
 
+#if defined(MBEDTLS_SSL_CONTEXT_SERIALIZATION)
+
 /* Serialization of TLS 1.2 sessions:
  *
  * struct {
@@ -8069,6 +8075,7 @@ static int ssl_session_load_tls12( mbedtls_ssl_session *session,
 
     return( 0 );
 }
+#endif /* MBEDTLS_SSL_CONTEXT_SERIALIZATION */
 #endif /* MBEDTLS_SSL_PROTO_TLS1_2 */
 
 int mbedtls_ssl_validate_ciphersuite(

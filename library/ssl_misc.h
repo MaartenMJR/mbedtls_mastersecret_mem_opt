@@ -817,6 +817,7 @@ struct mbedtls_ssl_handshake_params
                                         /*!<  random bytes            */
     unsigned char premaster[MBEDTLS_PREMASTER_SIZE];
                                         /*!<  premaster secret        */
+    unsigned char master[48];   /*!< the master secret  */
 
 #if defined(MBEDTLS_SSL_PROTO_TLS1_3)
     int extensions_present;             /*!< extension presence; Each bitfield
